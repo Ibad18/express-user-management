@@ -51,7 +51,7 @@ app.delete('/api/user/:id', (req,res)=>{
     console.log(userId)
     const userIndex = users.findIndex(user => user.id === userId)
     if(userIndex !== -1){
-        
+        users.splice(userIndex,1)        
         res.status(200).json({message: `user having id: ${userId} successfully deleted`})
     }
     else{
@@ -59,6 +59,7 @@ app.delete('/api/user/:id', (req,res)=>{
     }
 })
 
+app.use(errorHandler)
 
 app.listen(5000, ()=>{
     console.log(`server is running on http://localhost:5000`)
