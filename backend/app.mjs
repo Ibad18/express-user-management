@@ -29,9 +29,22 @@ app.post('/api/user', (req, res)=>{
     users.push(newUser)
     res.status(201).json({message:'fetching data', data: newUser})
 })
+
 app.put('/api/user/:id', (req,res)=>{
     const userId = parseInt(req.params.id)
     console.log(userId)
+    const userIndex = users.findIndex(user => user.id === userId)
+    if(userIndex !== -1){
+        const updatedUser = {
+            ...users[userIndex],
+            ...req.body
+        }
+        users[userIndex]=updatedUser
+        res.status(200).json({message: `user having id: ${userId} successfully updated`, data:updatedUser})
+    }
+    else{
+        res.status(404).json({message: `user with id:${userId} not found`})
+    }
 })
 
 app.listen(5000, ()=>{
