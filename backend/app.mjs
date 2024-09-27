@@ -52,7 +52,7 @@ app.delete('/api/user/:id', (req,res)=>{
     const userIndex = users.findIndex(user => user.id === userId)
     if(userIndex !== -1){
         users.splice(userIndex,1)        
-        res.status(200).json({message: `user having id: ${userId} successfully deleted`})
+        res.status(200).json({message: `user having id: ${userId} successfully deleted from database: users`})
     }
     else{
         res.status(404).json({message: `user with id:${userId} not found`})
