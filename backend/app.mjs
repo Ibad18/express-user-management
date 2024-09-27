@@ -19,7 +19,7 @@ app.post('/api/user', (req, res)=>{
     res.status(201).json({message:'fetching data', data: newUser})
 })
 app.put('/api/user/:id', (req,res)=>{
-    userId = parseInt(req.params.id)
+    const userId = parseInt(req.params.id)
     console.log(userId)
 })
 
