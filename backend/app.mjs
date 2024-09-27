@@ -46,6 +46,19 @@ app.put('/api/user/:id', (req,res)=>{
         res.status(404).json({message: `user with id:${userId} not found`})
     }
 })
+app.delete('/api/user/:id', (req,res)=>{
+    const userId = parseInt(req.params.id)
+    console.log(userId)
+    const userIndex = users.findIndex(user => user.id === userId)
+    if(userIndex !== -1){
+        
+        res.status(200).json({message: `user having id: ${userId} successfully deleted`})
+    }
+    else{
+        res.status(404).json({message: `user with id:${userId} not found`})
+    }
+})
+
 
 app.listen(5000, ()=>{
     console.log(`server is running on http://localhost:5000`)
