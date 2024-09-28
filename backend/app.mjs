@@ -27,7 +27,7 @@ app.post('/api/user', (req, res)=>{
         ...body
     }
     users.push(newUser)
-    res.status(201).json({message:'fetching data', data: newUser})
+    res.status(201).json({message:'The below user is added successfully in the database:users', data: newUser})
 })
 
 app.put('/api/user/:id', (req,res)=>{
