@@ -8,6 +8,8 @@ const App = () => {
   const [users, setUsers] = useState([])
   const [newUserName, setNewuserName] = useState('')
   const [newUserEmail, setNewuserEmail] = useState('')
+  const [updateUser, setUpdateUser] = useState({ id: '', name: '', email: '' })
+
   async function fetchUser() {
     const response = await axios.get(API_URL)
     const content = response.data
@@ -21,6 +23,24 @@ const App = () => {
       fetchUser()
     }).catch(err => console.error(err))
   }
+  // update user
+  function updateUserById(id) {
+    axios.put(`${API_URL}/${id}`, { name: updateUser.name, email: updateUser.email })
+      .then(response => {
+        setUsers(users.map(user => (user.id === id ? response.data : user)));
+        setUpdateUser({ id: '', name: '', email: '' })
+        fetchUser()
+      }).catch(err => console.error(err))
+  }
+    // Delete a user (DELETE)
+    const deleteUserById = (id) => {
+      axios.delete(`${API_URL}/${id}`)
+        .then(() => {
+          setUsers(users.filter(user => user.id !== id));
+        })
+        .catch(err => console.error(err));
+    };
+
   useEffect(() => {
     fetchUser()
   }, [])
@@ -31,31 +51,25 @@ const App = () => {
       <div>
         <h3>Add new user</h3>
         <input type='text' value={newUserName} onChange={(e) => setNewuserName(e.target.value)} placeholder='add a new user name' />
-        <input type='text' value={newUserEmail} onChange={(e) => setNewuserEmail(e.target.value)} placeholder='add a new user email' />
+        <input type='email' value={newUserEmail} onChange={(e) => setNewuserEmail(e.target.value)} placeholder='add a new user email' />
         <button onClick={addUser}>Add</button>
       </div>
       <div>
-        <input type='text' />
-        <button>Update</button>
+        <input type='text' value={updateUser.name} onChange={(e) => setUpdateUser({ ...updateUser, name: e.target.value })} />
+        <input type='email' value={updateUser.email} onChange={(e) => setUpdateUser({ ...updateUser, email: e.target.value })} />
+        <button onClick={() => updateUserById(updateUser.id)}>Update</button>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>S#</th>
-            <th>Name</th>
-            <th>Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{users.map(user => (<li>{user.id}</li>))}</td>
-            <td>{users.map(user => (<li>{user.name}</li>))}</td>
-            <td>{users.map(user => (<li>{user.email}</li>))}</td>
-          </tr>
-        </tbody>
-      </table>
-      <ul>
 
+      <ul>
+        {users.map(user => (
+          <li key={user.id}>
+            {user.name}, {user.email}
+            <button onClick={() => setUpdateUser({ id: user.id, name: user.name, email: user.email })}>
+              Edit
+            </button>
+            <button onClick={() => deleteUserById(user.id)}>Delete</button>
+          </li>
+        ))}
       </ul>
     </>
   )
