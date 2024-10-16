@@ -1,0 +1,35 @@
+*{
+    font-family: Arial, Helvetica, sans-serif;
+}
+/* Align content to the top-center of the page */
+.app-container {
+    display: flex;
+    padding: 20px 0px;
+    flex-direction: column;
+    align-items: center; /* Center horizontally */
+    margin-top: 20px; /* Add some space from the top */
+    background-color: #f5f5f5; /* Light background */
+  }
+  
+  /* Align the Add User button to the left */
+  .button-container {
+    width: 40%; /* Make sure the width is consistent with the table */
+    display: flex;
+    justify-content: right;
+    margin-bottom: 20px; /* Add space between the button and the table */
+  }
+  
+  /* Center and control the table size */
+  .MuiTableContainer-root {
+    width: 40%; /* Set table width to 40% of the page */
+  }
+  
+  /* Auto-adjust column widths */
+  .MuiTableCell-root {
+    padding: 8px; /* Reduce padding to minimize size */
+  }
+  
+  .MuiTableCell-root:first-child {
+    width: 10%; /* Set a fixed width for ID column */
+  }
+  

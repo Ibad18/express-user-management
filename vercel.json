@@ -1,0 +1,24 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "server/app.mjs", 
+        "use": "@vercel/node"
+      },
+      {
+        "src": "client/package.json",
+        "use": "@vercel/static-build"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/api/(.*)", 
+        "dest": "server/app.mjs"
+      },
+      {
+        "src": "/(.*)", 
+        "dest": "/client/$1"
+      }
+    ]
+  }
+  

@@ -1,78 +1,195 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-
-const API_URL = 'http://localhost:5000/api/user'
+import React, { useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
+import "./App.css"; // Custom CSS for layout
 
 const App = () => {
-
-  const [users, setUsers] = useState([])
-  const [newUserName, setNewuserName] = useState('')
-  const [newUserEmail, setNewuserEmail] = useState('')
-  const [updateUser, setUpdateUser] = useState({ id: '', name: '', email: '' })
-
-  async function fetchUser() {
-    const response = await axios.get(API_URL)
-    const content = response.data
-    setUsers(content.data)
-  }
-  function addUser() {
-    axios.post(API_URL, { name: newUserName, email: newUserEmail }).then(response => {
-      setUsers([...users, response.data]);
-      setNewuserName('')
-      setNewuserEmail('')
-      fetchUser()
-    }).catch(err => console.error(err))
-  }
-  // update user
-  function updateUserById(id) {
-    axios.put(`${API_URL}/${id}`, { name: updateUser.name, email: updateUser.email })
-      .then(response => {
-        setUsers(users.map(user => (user.id === id ? response.data : user)));
-        setUpdateUser({ id: '', name: '', email: '' })
-        fetchUser()
-      }).catch(err => console.error(err))
-  }
-    // Delete a user (DELETE)
-    const deleteUserById = (id) => {
-      axios.delete(`${API_URL}/${id}`)
-        .then(() => {
-          setUsers(users.filter(user => user.id !== id));
-        })
-        .catch(err => console.error(err));
-    };
+  const [users, setUsers] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [newUser, setNewUser] = useState({ name: "", email: "" });
+  const [editingUser, setEditingUser] = useState({ id: null, name: "", email: "" });
 
   useEffect(() => {
-    fetchUser()
-  }, [])
+    fetch("http://localhost:5000/api/users")
+      .then((res) => res.json())
+      .then((data) => setUsers(data));
+  }, []);
+
+  const handleAddUser = () => {
+    fetch("http://localhost:5000/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newUser),
+    })
+      .then((res) => res.json())
+      .then((user) => {
+        setUsers([...users, user]);
+        setOpen(false);
+        setNewUser({ name: "", email: "" });
+      });
+  };
+
+  const handleEditUser = () => {
+    fetch(`http://localhost:5000/api/users/${editingUser.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: editingUser.name, email: editingUser.email }),
+    })
+      .then((res) => res.json())
+      .then((updatedUser) => {
+        setUsers(
+          users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+        );
+        setEditOpen(false);
+      });
+  };
+
+  const handleDeleteUser = (id) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      fetch(`http://localhost:5000/api/users/${id}`, {
+        method: "DELETE",
+      }).then(() => {
+        setUsers(users.filter((user) => user.id !== id));
+      });
+    }
+  };
 
   return (
-    <>
-      <h2>Express User Management</h2>
-      <div>
-        <h3>Add new user</h3>
-        <input type='text' value={newUserName} onChange={(e) => setNewuserName(e.target.value)} placeholder='add a new user name' />
-        <input type='email' value={newUserEmail} onChange={(e) => setNewuserEmail(e.target.value)} placeholder='add a new user email' />
-        <button onClick={addUser}>Add</button>
-      </div>
-      <div>
-        <input type='text' value={updateUser.name} onChange={(e) => setUpdateUser({ ...updateUser, name: e.target.value })} />
-        <input type='email' value={updateUser.email} onChange={(e) => setUpdateUser({ ...updateUser, email: e.target.value })} />
-        <button onClick={() => updateUserById(updateUser.id)}>Update</button>
+    <div className="app-container">
+      <h2>User Management System (Express)</h2>
+      {/* Add User Button */}
+      <div className="button-container">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpen(true)}
+        >
+          Add User
+        </Button>
       </div>
 
-      <ul>
-        {users.map(user => (
-          <li key={user.id}>
-            {user.name}, {user.email}
-            <button onClick={() => setUpdateUser({ id: user.id, name: user.name, email: user.email })}>
-              Edit
-            </button>
-            <button onClick={() => deleteUserById(user.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-    </>
-  )
-}
+      {/* Table to Display Users */}
+      <TableContainer component={Paper} style={{ width: "40%" }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ width: "10%" }}>ID</TableCell>
+              <TableCell style={{ width: "auto" }}>Name</TableCell>
+              <TableCell style={{ width: "auto" }}>Email</TableCell>
+              <TableCell style={{ width: "auto" }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.id}</TableCell>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => {
+                      setEditingUser(user);
+                      setEditOpen(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    style={{ marginLeft: "10px" }}
+                    onClick={() => handleDeleteUser(user.id)}
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-export default App
+      {/* Add User Dialog */}
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle>Add New User</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Name"
+            fullWidth
+            value={newUser.name}
+            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            fullWidth
+            value={newUser.email}
+            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddUser} color="primary">
+            Add User
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit User Dialog */}
+      <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
+        <DialogTitle>Edit User</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Name"
+            fullWidth
+            value={editingUser.name}
+            onChange={(e) =>
+              setEditingUser({ ...editingUser, name: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            fullWidth
+            value={editingUser.email}
+            onChange={(e) =>
+              setEditingUser({ ...editingUser, email: e.target.value })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleEditUser} color="primary">
+            Update User
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
+export default App;
